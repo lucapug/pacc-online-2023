@@ -1,6 +1,8 @@
+from prefect import flow
+
 import httpx
 
-
+@flow
 def fetch_weather(lat: float, lon: float):
     base_url = "https://api.open-meteo.com/v1/forecast/"
     weather = httpx.get(
