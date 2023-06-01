@@ -3,11 +3,11 @@ from prefect import flow, task, get_run_logger
 
 
 @flow
-def fetch():
-    fetch_weather()
+def fetch1(lat: float, lon: float):
+    fetch_weather(lat, lon)
 
 
-@task(retries=4, retry_delay_seconds=0.1)
+@task(retries=2, retry_delay_seconds=0.1)
 def fetch_weather(lat: float, lon: float):
     base_url = "https://api.open-meteo.com/v1/forecast/"
     weather = httpx.get(
@@ -19,11 +19,11 @@ def fetch_weather(lat: float, lon: float):
 
 
 @flow
-def fetch():
-    fetch_weather_wind()
+def fetch2(lat: float, lon: float):
+    fetch_weather_wind(lat, lon)
 
 
-@task(retries=4, retry_delay_seconds=0.1)
+@task(retries=2, retry_delay_seconds=0.1)
 def fetch_weather_wind(lat: float, lon: float):
     base_url = "https://api.open-meteo.com/v1/forecast/"
     weather = httpx.get(
@@ -38,14 +38,15 @@ def fetch_weather_wind(lat: float, lon: float):
 @flow(name="subflow-logger")
 def log_it():
     logger = get_run_logger()
-    logger.info("INFO level log message.")
+    logger.info("INFO level. Logged with get_run_logger")
 
 
 @flow(log_prints=True)
 def pipeline(lat: float, lon: float):
-    temp = fetch_weather(lat, lon)
-    temp2 = fetch_weather_wind(lat, lon)
-    print(f"temp {temp}, temp2{temp2}")
+    log_it()
+    temp = fetch1(lat, lon)
+    temp2 = fetch2(lat, lon)
+    print(f"temperature: {temp} \n wind: {temp2}")
 
 
 if __name__ == "__main__":
